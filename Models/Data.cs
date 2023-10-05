@@ -69,8 +69,6 @@ namespace DiPlayer_CSharp.Models
                     DoubleClickedTheSameTrack = false;
                 }
             }
-
-            SelectedTrack = Playlist.Items[SelectedTrackIndex];
         }
 
         public void PlayTheTrackAgain()

@@ -124,6 +124,7 @@ namespace DiPlayer_CSharp.ViewModels
 
         internal void OnClose()
         {
+            Model.Logic.LogicCleanup();
             Application.Current.Shutdown();
         }
 

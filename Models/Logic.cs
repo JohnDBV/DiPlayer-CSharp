@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 
 namespace DiPlayer_CSharp.Models
 {
@@ -26,9 +27,7 @@ namespace DiPlayer_CSharp.Models
         private PlaylistControl m_playlistControl;
 
         //A timer to update data every second : 
-        private System.Threading.Timer m_audioLibraryChecksTimer;
-        private volatile bool m_isAudioLibraryChecksTimerRunning = true;//volatile boolean to check the timer state
-        private static object m_AudioLibraryChecksThreadLock = new object();
+        private DispatcherTimer m_audioLibraryChecksTimer;
 
         #endregion
 
@@ -38,24 +37,6 @@ namespace DiPlayer_CSharp.Models
         public VolumeControl VolumeControl { get => m_volumeControl; }
         public PlaybackControl PlaybackControl { get => m_playbackControl; }
         public PlaylistControl PlaylistControl { get => m_playlistControl; }
-
-        public bool IsAudioLibraryChecksTimerRunning//Thread-safe property for the above boolean variable
-        {
-            get
-            {
-                lock (m_AudioLibraryChecksThreadLock)
-                {
-                    return m_isAudioLibraryChecksTimerRunning;
-                }
-            }
-            set
-            {
-                lock (m_AudioLibraryChecksThreadLock)
-                {
-                    m_isAudioLibraryChecksTimerRunning = value;
-                }
-            }
-        }
 
         public Logic(MainModel mainModel)
         {
@@ -68,8 +49,10 @@ namespace DiPlayer_CSharp.Models
             m_playbackControl = new PlaybackControl(ref parent);
             m_playlistControl = new PlaylistControl(ref parent);
 
-            m_audioLibraryChecksTimer = new System.Threading.Timer(AudioLibraryChecks,
-                IsAudioLibraryChecksTimerRunning, 50, 1000);
+            m_audioLibraryChecksTimer = new DispatcherTimer();
+            m_audioLibraryChecksTimer.Tick += new EventHandler(AudioLibraryChecks);
+            m_audioLibraryChecksTimer.Interval = TimeSpan.FromMilliseconds(1000);
+            m_audioLibraryChecksTimer.Start();
             //fire AudioLibraryChecks(...) every 1000ms, with 50 ms delay for the timer start 
         }
 
@@ -94,7 +77,7 @@ namespace DiPlayer_CSharp.Models
             AudioLibrary.Seek(TTimeFormat.tfSecond, ref timeToSeek, TSeekMethod.smFromBeginning);        
         }
 
-        private void AudioLibraryChecks(object? stateInfo)
+        private void AudioLibraryChecks(object sender, EventArgs e)
         {
             TStreamInfo info = new TStreamInfo();
             AudioLibrary.GetStreamInfo(ref info);
@@ -106,7 +89,7 @@ namespace DiPlayer_CSharp.Models
 
             //we have no usable "track end event" on the library,so we do the "trick" on the next if statement :
             if (BusinessLogicUtilities.IsPlaybackOnTheLastSecond(pos, info.Length)
-                && (PlaybackControl.PlaybackState == PlaybackState.Playing) )
+                && (PlaybackControl.PlaybackState == PlaybackState.Playing))
             {
                 PlaylistControl.OnNextSong();
             }
@@ -133,5 +116,11 @@ namespace DiPlayer_CSharp.Models
             return ValueTuple.Create(name, artist, album, img);
         }
 
+        public void LogicCleanup()
+        {
+            m_audioLibraryChecksTimer.Stop();
+        }
+
     }
+
 }
