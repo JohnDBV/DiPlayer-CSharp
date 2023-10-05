@@ -1,0 +1,52 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <RootNamespace>DiPlayer_CSharp</RootNamespace>
+    <Nullable>enable</Nullable>
+    <UseWPF>true</UseWPF>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Resources\Images\FloppyDiskIcon.png" />
+    <None Remove="Resources\Images\music-41071_640.png" />
+    <None Remove="Resources\Images\NextIcon.png" />
+    <None Remove="Resources\Images\PauseIcon.png" />
+    <None Remove="Resources\Images\PlayIcon.png" />
+    <None Remove="Resources\Images\PreviousIcon.png" />
+    <None Remove="Resources\Images\RepeatAllIcon96.png" />
+    <None Remove="Resources\Images\RepeatOffIcon96.png" />
+    <None Remove="Resources\Images\RepeatOneIcon96.png" />
+    <None Remove="Resources\Images\StopIcon.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Resources\Images\FloppyDiskIcon.png" />
+    <Resource Include="Resources\Images\music-41071_640.png" />
+    <Resource Include="Resources\Images\NextIcon.png" />
+    <Resource Include="Resources\Images\PauseIcon.png" />
+    <Resource Include="Resources\Images\PlayIcon.png" />
+    <Resource Include="Resources\Images\PreviousIcon.png" />
+    <Resource Include="Resources\Images\RepeatAllIcon96.png" />
+    <Resource Include="Resources\Images\RepeatOffIcon96.png" />
+    <Resource Include="Resources\Images\RepeatOneIcon96.png" />
+    <Resource Include="Resources\Images\StopIcon.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Models\ExternalAudioLibrary\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Drawing.Common" Version="7.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="libzplay.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

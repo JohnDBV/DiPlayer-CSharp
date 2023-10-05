@@ -1,0 +1,9 @@
+﻿* Music notes & compact disc image : https://pixabay.com/vectors/music-cd-compact-disc-circular-41071/
+* Media Icons : https://dribbble.com/shots/11350496-Basic-Iconography-for-Music-App
+Modifications :
+
+- Cut from the big image
+- Color-change for the repeat button only
+- Color fill for the "Stop" button
+
+* Floppy Disk Icon : https://www.cleanpng.com/png-computer-icons-floppy-disk-symbol-2137152/

@@ -1,0 +1,180 @@
+﻿<Window x:Name="window" x:Class="DiPlayer_CSharp.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:DiPlayer_CSharp"
+        xmlns:ViewModels="clr-namespace:DiPlayer_CSharp.ViewModels"
+        mc:Ignorable="d"
+        Title="DI Player" Height="600" Width="800">
+    <Window.DataContext>
+        <ViewModels:MainViewModel x:Name="ctx"/>
+    </Window.DataContext>
+
+    <Window.InputBindings>
+        <KeyBinding Key="F" Modifiers="Ctrl" Command="{Binding OpenFiles, Mode=OneWay}" />
+        <KeyBinding Key="P" Modifiers="Ctrl" Command="{Binding OpenPlaylist, Mode=OneWay}" />
+        <KeyBinding Key="Q" Modifiers="Ctrl" Command="{Binding Close, Mode=OneWay}" />
+    </Window.InputBindings>
+
+    <DockPanel LastChildFill="True">
+        <Menu x:Name="menu" DockPanel.Dock="Top" Height="20">
+            <MenuItem Header="_File">
+                <MenuItem Header="_Open">
+                    <MenuItem Header="_Files..." InputGestureText="Ctrl+F" Command="{Binding OpenFiles, Mode=OneWay}" />
+                    <MenuItem Header="_Playlist..." InputGestureText="Ctrl+P" Command="{Binding OpenPlaylist, Mode=OneWay}" />
+                </MenuItem>
+                <MenuItem x:Name="ExitMenuItem" Header="_Exit..." InputGestureText="Ctrl+Q" Command="{Binding Close, Mode=OneWay}" />
+            </MenuItem>
+            <MenuItem Header="_Settings">
+                <MenuItem Header="Theme">
+                    <MenuItem x:Name="lightThemeMenuItem" IsCheckable="True" Header="_Light"/>
+                    <MenuItem x:Name="darkThemeMenuItem" IsCheckable="True" Header="_Dark"/>
+                    <MenuItem x:Name="systemSettingsThemeMenuItem"  IsCheckable="True" IsChecked="True" Header="_Use System Settings"/>
+                </MenuItem>
+                <MenuItem x:Name="moreAudioSettingsMenuItem" Header="_Audio Settings..."/>
+            </MenuItem>
+            <MenuItem Header="_Help">
+                <MenuItem Header="_About..."/>
+            </MenuItem>
+        </Menu>
+        <Grid x:Name="mainGrid">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="120"/>
+            </Grid.RowDefinitions>
+
+            <Grid x:Name="topGrid" Grid.Row="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="300"/>
+                </Grid.ColumnDefinitions>
+
+                <DockPanel x:Name="fileInfoPanel" Grid.Column="0">
+                    <WrapPanel  x:Name="picturePanel" Margin="20,50,0,0" Orientation="Vertical" 
+                                Width="150" Height="{Binding ElementName=fileInfoPanel, Path=ActualHeight}">
+                        <Image x:Name="imgAlbumArt" Source="{Binding Model.Data.SelectedTrack.StorageBitmap}" Width="128" Height="128" Stretch="Uniform"/>
+                    </WrapPanel>
+                    <StackPanel Orientation="Vertical" Margin="0,70,0,0" Width="80" Height="{Binding ElementName=fileInfoPanel, Path=ActualHeight}">
+                        <StackPanel.Resources>
+                            <Style TargetType="{x:Type TextBlock}">
+                                <Setter Property="Margin" Value="0,10,0,0"/>
+                            </Style>
+                        </StackPanel.Resources>
+                        <TextBlock Text="Track Name :"/>
+                        <TextBlock Text="Artist :"/>
+                        <TextBlock Text="Album : "/>
+                    </StackPanel>
+                    <StackPanel Orientation="Vertical" Margin="0,70,10,0" Height="{Binding ElementName=fileInfoPanel, Path=ActualHeight}">
+                        <StackPanel.Resources>
+                            <Style TargetType="{x:Type TextBlock}">
+                                <Setter Property="Margin" Value="0,10,0,0"/>
+                            </Style>
+                        </StackPanel.Resources>
+                        <TextBlock Text="{Binding Model.Data.SelectedTrack.StorageTrackName, Mode=TwoWay}"
+                                   TextTrimming="CharacterEllipsis" 
+                                   ToolTipService.ToolTip="{Binding Model.Data.SelectedTrack.StorageTrackName}"/>
+                        <TextBlock Text="{Binding Model.Data.SelectedTrack.StorageArtist, Mode=TwoWay}"
+                                   TextTrimming="CharacterEllipsis"/>
+                        <TextBlock Text="{Binding Model.Data.SelectedTrack.StorageAlbum, Mode=TwoWay}"
+                                   TextTrimming="CharacterEllipsis"/>
+                    </StackPanel>
+                </DockPanel>
+
+                <DockPanel x:Name="playlistPanel" Grid.Column="1">
+                    <Grid x:Name="uppeerPlaylistPanel" Background="#FFEAEAEA" DockPanel.Dock="Top">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="42"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBox Grid.Column="0" IsReadOnly="True" x:Name="playlistNameTextBox" Margin="10,5,5,5" FontSize="16" FontWeight="DemiBold"
+                                 Text="{Binding Model.Data.Playlist.PlaylistTitle}"/>
+                        <Button Grid.Column="1" Width="24" Height="{Binding ElementName=playlistNameTextBox, Path=ActualHeight}" 
+                                Margin="0,0,10,0" FontSize="14" FontWeight="Bold" DockPanel.Dock="Left"
+                                Command="{Binding SavePlaylistCommand}"
+                                Background="#00000000" BorderThickness="0">
+                            <Image Source="Resources\Images\FloppyDiskIcon.png"/>
+                        </Button>
+                    </Grid>
+                    <ListView x:Name="mainListView" Margin="10" SelectionMode="Single"
+                              ItemsSource="{Binding Model.Data.Playlist.Tracks}"
+                              SelectedIndex="{Binding Model.Data.SelectedTrackIndex, Mode=TwoWay}">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <WrapPanel>
+                                    <WrapPanel.InputBindings>
+                                        <MouseBinding Gesture="LeftDoubleClick" 
+                                                      Command="{Binding ElementName=ctx, Path=DoubleClick}"
+                                                      CommandParameter="{Binding ElementName=mainListView, Path=SelectedIndex}"/>
+                                    </WrapPanel.InputBindings>
+                                    <TextBlock x:Name="artistLabel" Text="{Binding TrackArtist}" TextTrimming="CharacterEllipsis"/>
+                                    <TextBlock Text=" | " FontWeight="ExtraBold"/>
+                                    <TextBlock x:Name="trackNameLabel" Text="{Binding TrackName}" TextTrimming="CharacterEllipsis"/>
+                                </WrapPanel>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </DockPanel>
+            </Grid>
+
+            <DockPanel x:Name="bottomPanel" LastChildFill="True" Grid.Row="1">
+                <DockPanel x:Name="PlaybackTimePanel" DockPanel.Dock="Top" 
+                           Height="50" Width="{Binding ActualWidth, ElementName=bottomPanel}">
+                    <!--The text blocks doesn't want to center if we use DockPanel, it seems-->
+                    <StackPanel Margin="10,0,0,0" Width="50" DockPanel.Dock="Left" Orientation="Horizontal">
+                        <TextBlock Padding="5,0,0,0" Text="{Binding Model.Logic.ProgressControl.CurrentTime}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel Margin="0,0,10,0" Width="50" DockPanel.Dock="Right" Orientation="Horizontal">
+                        <TextBlock Text="{Binding Model.Logic.ProgressControl.TotalTime}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <DockPanel x:Name="progressPanel" LastChildFill="True" Height="30">
+                        <!-- And make its child have some padding-->
+                        <Slider x:Name="playbackSlider" Margin="10,0,10,0" VerticalAlignment="Center" Maximum="100" SmallChange="1" LargeChange="10" IsMoveToPointEnabled="True"
+                                Value="{Binding Model.Logic.ProgressControl.Percent}" PreviewMouseLeftButtonDown="playbackSlider_PreviewMouseLeftButtonDown"/>
+                    </DockPanel>
+                </DockPanel>
+                <Grid x:Name="playbackControlGrid">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="200"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="200"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Orientation="Horizontal" FlowDirection="RightToLeft" Grid.Column="0">
+                        <Button Margin="40,0,0,0" Width="32" Height="32" VerticalAlignment="Center"
+                                Command="{Binding RepeatButtonCommand}" CommandParameter="RepeatButton"
+                                Background="#00000000" BorderThickness="0">
+                            <Image Source="{Binding Model.Logic.PlaylistControl.BitmapImage}"/>
+                        </Button>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" FlowDirection="LeftToRight" Grid.Column="2">
+                        <Slider x:Name="volumeSlider" Margin="20,0,0,0" Width="140" Height="20" VerticalAlignment="Center"
+                                Value="{Binding Model.Logic.VolumeControl.Volume}" Maximum="100" SmallChange="1" LargeChange="10" IsMoveToPointEnabled="True"/>
+                    </StackPanel>
+                    <StackPanel Height="48"  HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal" FlowDirection="LeftToRight" Grid.Column="1" Background="#FFBCFFF7">
+                        <Button Margin="20,0,0,0" Width="32" Height="32" VerticalAlignment="Center" BorderThickness="0"
+                                Command="{Binding StopButton, Mode=OneWay}" Background="#00000000">
+                            <Image Source="Resources\Images\StopIcon.png"/> 
+                        </Button>
+                        <Rectangle Margin="10,0,0,0" Width="5" Height="32" Fill="#FF3398D6"/>
+                        <Button Margin="10,0,0,0" Width="32" Height="32" VerticalAlignment="Center"
+                                Command="{Binding RepeatButtonCommand}" CommandParameter="PreviousButton"
+                                Background="#00000000" BorderThickness="0">
+                            <Image Source="Resources\Images\PreviousIcon.png"/>
+                        </Button>
+                        <Button Margin="20,0,0,0" Width="32" Height="32" VerticalAlignment="Center" Command="{Binding PlayPauseButton, Mode=OneWay}"
+                                Background="#00000000" BorderThickness="0">
+                            <Image Source="{Binding Model.Logic.PlaybackControl.BitmapImage}"/>
+                        </Button>
+                        <Button Margin="20,0,20,0" Width="32" Height="32" VerticalAlignment="Center"
+                                Command="{Binding RepeatButtonCommand}" CommandParameter="NextButton"
+                                Background="#00000000" BorderThickness="0">
+                            <Image Source="Resources\Images\NextIcon.png"/>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </DockPanel>
+
+        </Grid>
+    </DockPanel>
+</Window>
