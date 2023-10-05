@@ -7,4 +7,4 @@ Preview :
 
 Total development time : ~80 hours
 
-If you want to test out the latest build, the latest stable build will be present inside the "Builds" folder.
+If you want to test out the latest build, please unzip the content of the "Builds" folder.
